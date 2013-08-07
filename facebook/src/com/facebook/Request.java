@@ -300,9 +300,10 @@ public class Request {
      *            a callback that will be called when the request is completed to handle success or error conditions
      * @return a Request that is ready to execute
      */
-    public static Request newUploadPhotoRequest(Session session, Bitmap image, Callback callback) {
+    public static Request newUploadPhotoRequest(Session session, Bitmap image, String string, Callback callback) {
         Bundle parameters = new Bundle(1);
         parameters.putParcelable(PICTURE_PARAM, image);
+        parameters.putString("message", string);
 
         return new Request(session, MY_PHOTOS, parameters, HttpMethod.POST, callback);
     }
@@ -742,8 +743,8 @@ public class Request {
      *            a callback that will be called when the request is completed to handle success or error conditions
      * @return a RequestAsyncTask that is executing the request
      */
-    public static RequestAsyncTask executeUploadPhotoRequestAsync(Session session, Bitmap image, Callback callback) {
-        return newUploadPhotoRequest(session, image, callback).executeAsync();
+    public static RequestAsyncTask executeUploadPhotoRequestAsync(Session session, Bitmap image, String string, Callback callback) {
+        return newUploadPhotoRequest(session, image, string, callback).executeAsync();
     }
 
     /**

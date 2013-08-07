@@ -14,6 +14,7 @@ import com.facebook.Session;
 import com.facebook.UiLifecycleHelper;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,12 +30,15 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.InputFilter;
 import android.text.format.Time;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -76,6 +80,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	static TwitterTools twitterTools;
     private SharedPreferences prefs;
     public Boolean twitterAuthed = false;
+    public String statusUpdate;
     
     
 	@Override
@@ -226,6 +231,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
     	startActivityForResult(intent, CAMERA_LOAD_IMAGE);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
  		super.onActivityResult(requestCode, resultCode, data);
@@ -275,9 +281,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
     	else if(requestCode == TWITTER && resultCode == RESULT_OK && null != data){
     		// Get the file path of the image to be shared
     		picturePath = ImageLoader.loadFromGallery(picturePath, data, this);
-    		
-    		// Load the image into a Twitter Status and update the users status
-    		new TwitterShareAsync().execute();
+    		showDialog(2);
     	}
     	else if(requestCode == FACEBOOK && resultCode == RESULT_OK && null != data){
     		// Get the file path of the image to be shared
@@ -315,7 +319,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    	
 	    	// Upload the image to Facebook
 	    	progressbar.setVisibility(View.VISIBLE);
-	    	facebookPoster.sharePhoto();
+	    	showDialog(1);
         }
     	else if(requestCode == EMAIL && resultCode == RESULT_OK && null != data){
     		
@@ -742,7 +746,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		@Override
 		protected Void doInBackground(Void... params) {
 			// Pass in the file path of the image to be shared
-			twitterTools.share(picturePath);
+			twitterTools.share(picturePath,statusUpdate);
 			return null;
 		}
 		
@@ -763,6 +767,64 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
         	FacebookPoster.pendingAction = PendingAction.POST_PHOTO;
         }
     }
+	
+	protected Dialog onCreateDialog(int id) {
+		/** Create custom layout */
+	       LayoutInflater factory = LayoutInflater.from(this);
+	       final View textEntryView = factory.inflate(R.layout.share_message, null);
+	       
+	       /** Get the edit text box and set max characters because it's twitter */
+	       final EditText edit_message = (EditText)textEntryView.findViewById(R.id.post_txt);
+	       int maxLength = 120;
+	       InputFilter[] FilterArray = new InputFilter[1];
+	       FilterArray[0] = new InputFilter.LengthFilter(maxLength);
+	       edit_message.setFilters(FilterArray);
+		try{
+			switch (id) { 
+				case 1:
+					   
+				       
+				       /** Create Dialog */
+				       return new AlertDialog.Builder(MainActivity.this)
+			               .setTitle("Status")
+			               .setView(textEntryView)
+			               .setPositiveButton("SHARE", new DialogInterface.OnClickListener() {
+			            	   public void onClick(DialogInterface dialog, int whichButton) {
+			            		   // Upload the image to Facebook
+			           	    		progressbar.setVisibility(View.VISIBLE);
+			           	    		facebookPoster.sharePhoto(edit_message.getText().toString());
+			            	   }
+			               })
+			               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+			            	   public void onClick(DialogInterface dialog, int whichButton) {
+			            		   progressbar.setVisibility(View.INVISIBLE);
+			            	   }
+			               })
+			               .create(); 
+			case 2:
+			       /** Create Dialog */
+			       return new AlertDialog.Builder(MainActivity.this)
+		               .setTitle("Status")
+		               .setView(textEntryView)
+		               .setPositiveButton("SHARE", new DialogInterface.OnClickListener() {
+		            	   public void onClick(DialogInterface dialog, int whichButton) {
+		            		   // Load the image into a Twitter Status and update the users status
+		            		   statusUpdate = edit_message.getText().toString();
+		            		   new TwitterShareAsync().execute();
+		            	   }
+		               })
+		               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+		            	   public void onClick(DialogInterface dialog, int whichButton) {
+		            	   }
+		               })
+		               .create();
+		}
+		}
+		catch (Exception ex) {
+			finish();
+		}
+		return null;
+	}
 	
 	// Check if there is an internet connection
 	public boolean isNetworkAvailable() {

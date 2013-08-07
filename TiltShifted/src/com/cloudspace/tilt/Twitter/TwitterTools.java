@@ -8,6 +8,7 @@ import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import android.net.Uri;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -20,7 +21,7 @@ public class TwitterTools {
 		activity = mainActivity;
 	}
 	
-	public void share(String picturePath){
+	public void share(String picturePath, final String statusUpdate){
 		// Get passed in file path
 		TwitterTools.picturePath = picturePath;
 		Thread t = new Thread() {
@@ -30,7 +31,7 @@ public class TwitterTools {
 	        		Twitter twitter = TwitterUtils.twitter;
 	        		Uri uri = Uri.fromFile(new File(TwitterTools.picturePath));
 	        		File file = new File(uri.getPath());
-	                StatusUpdate status = new StatusUpdate("Created with #TiltShifted for Android by @Cloudspace!");
+	                StatusUpdate status = new StatusUpdate(statusUpdate);
 	                status.setMedia(file);
 	                twitter.updateStatus(status);
 	                activity.runOnUiThread(new Runnable() {
