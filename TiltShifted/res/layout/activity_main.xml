@@ -1,0 +1,120 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity" android:id="@+id/root">
+    <RelativeLayout
+        android:id="@+id/photo"
+        android:orientation="vertical"
+        android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content"
+    	android:layout_above="@+id/toolbar"
+        android:background="#50000000">
+        
+        <RelativeLayout
+	        android:layout_width="fill_parent" 
+	    	android:layout_height="fill_parent">
+	
+		    <ImageView
+		        android:id="@+id/imageView1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerHorizontal="true"
+		        android:layout_centerVertical="true" 
+		        android:src="@drawable/home"/>
+		    
+			<ImageView
+		        android:id="@+id/imageView2"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerHorizontal="true"
+		        android:layout_centerVertical="true"/>
+			
+			<ImageView
+		        android:id="@+id/imageView3"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:layout_centerHorizontal="true"
+		        android:layout_centerVertical="true"/>
+			
+		    <ImageView
+		        android:id="@+id/top"
+		        android:layout_width="wrap_content"
+		        android:layout_height="50dp"
+		        android:layout_alignParentTop="true"
+		        android:layout_centerHorizontal="true"/>
+		    
+		    <ImageView
+		        android:id="@+id/bottom"
+		        android:layout_width="wrap_content"
+		        android:layout_height="50dp"
+		        android:layout_alignParentBottom="true"
+		        android:layout_centerHorizontal="true"/>
+	    </RelativeLayout>
+	</RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/toolbar"
+        android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content"
+    	android:layout_alignParentBottom="True"
+	    android:background="#99ffffff">
+		<RelativeLayout 
+	   		android:layout_width="fill_parent" 
+    		android:layout_height="wrap_content"
+    		android:background="#99ffffff">
+	    
+        <RelativeLayout
+	        android:id="@+id/toolbar1"
+	        android:orientation="horizontal"
+	        android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"
+	    	android:layout_centerHorizontal="True">
+	        <ImageButton 
+		        android:id="@+id/load"
+		        android:src="@drawable/icon_photos"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"
+		        android:background="@null"/>
+	        
+	        <ImageButton 
+		        android:id="@+id/camera"
+		        android:src="@drawable/icon_camera"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"
+		        android:layout_toRightOf="@+id/load"
+		        android:background="@null"
+		        android:layout_marginLeft="40dp"/>
+	        
+	        <ImageButton 
+		        android:id="@+id/share"
+		        android:background="@drawable/share_button"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"
+		        android:layout_toRightOf="@+id/camera"
+		        android:layout_marginLeft="40dp"/>
+	        
+	        <ImageButton 
+		        android:id="@+id/save"
+		       android:background="@drawable/save_button"
+		        android:layout_width="wrap_content" 
+		        android:layout_height="wrap_content"
+		        android:layout_toRightOf="@+id/share"
+		        android:layout_marginLeft="40dp"/>
+		</RelativeLayout>
+		</RelativeLayout>
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
+    
+    <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
+
+</RelativeLayout>
