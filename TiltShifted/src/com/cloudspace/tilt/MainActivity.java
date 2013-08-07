@@ -94,9 +94,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
             FacebookPoster.pendingAction = PendingAction.valueOf(name);
         }
         
-        //Get the stored preferences and 
-        //prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        
         // Set the main view of the app
 		setContentView(R.layout.activity_main);
 		

@@ -113,6 +113,9 @@ public class TiltShift {
 	    else if(x >= height){
 	    	start = y-50;
 	    }
+	    else if(x <= 0){
+	    	start = 0;
+	    }
 	    if(y < height && y > 0){
 	    	stop = y;
 	    }
@@ -142,7 +145,7 @@ public class TiltShift {
 	    if(new_y > 0 && new_y < height){
 	    	start = new_y;
 	    }
-	    if(x > 0 && x < height){
+	    if(x > 0 && x < (height/5)){
 	    	currentXBottom = x;
 	    	if(x < (new_y-50)){
 	    		bottom = new_y-x;
