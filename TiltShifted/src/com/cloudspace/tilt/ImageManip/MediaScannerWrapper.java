@@ -3,7 +3,7 @@ package com.cloudspace.tilt.ImageManip;
 import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
-
+// Author: Peter Knego
 public class MediaScannerWrapper implements  
 MediaScannerConnection.MediaScannerConnectionClient {
     private MediaScannerConnection mConnection;
