@@ -1,5 +1,7 @@
 package com.cloudspace.tilt.Facebook;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -72,8 +74,8 @@ public class FacebookPoster {
         return session != null && session.getPermissions().contains("publish_actions");
     }
 
-    public void sharePhoto(){
-    	Request request = Request.newUploadPhotoRequest(Session.getActiveSession(), shareImage, new Request.Callback() {
+    public void sharePhoto(String string, File sharePath) throws FileNotFoundException{
+    	Request request = Request.newUploadPhotoRequest(Session.getActiveSession(), sharePath, string, new Request.Callback() {
             @Override
             public void onCompleted(Response response) {
             	activity.progressbar.setVisibility(View.INVISIBLE);

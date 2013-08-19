@@ -42,7 +42,7 @@ public class PrepareRequestTokenActivity extends Activity {
     	
     	/** Notify user of update */
         public void run() {
-        	Toast.makeText(getBaseContext(), "You are now logged in to Twitter !", Toast.LENGTH_SHORT).show();
+        	Toast.makeText(getBaseContext(), "You are now logged in to Twitter and may post your photo!", Toast.LENGTH_SHORT).show();
         }
     };
     

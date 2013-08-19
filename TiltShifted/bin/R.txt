@@ -77,7 +77,7 @@ int drawable icon_share 0x7f020026
 int drawable icon_share_disabled 0x7f020027
 int drawable save_button 0x7f020028
 int drawable share_button 0x7f020029
-int id action_settings 0x7f040027
+int id action_settings 0x7f04002a
 int id bottom 0x7f04000a
 int id camera 0x7f04000d
 int id com_facebook_login_activity_progress_bar 0x7f040014
@@ -99,6 +99,7 @@ int id com_facebook_placepickerfragment_search_box_stub 0x7f040021
 int id com_facebook_usersettingsfragment_login_button 0x7f040026
 int id com_facebook_usersettingsfragment_logo_image 0x7f040024
 int id com_facebook_usersettingsfragment_profile_name 0x7f040025
+int id edit_post 0x7f040027
 int id fragment_container 0x7f040011
 int id imageView1 0x7f040006
 int id imageView2 0x7f040007
@@ -108,6 +109,8 @@ int id load 0x7f04000c
 int id normal 0x7f040001
 int id photo 0x7f040004
 int id picker_subtitle 0x7f040023
+int id post_lbl 0x7f040028
+int id post_txt 0x7f040029
 int id progress 0x7f040010
 int id root 0x7f040003
 int id save 0x7f04000f
@@ -131,6 +134,7 @@ int layout com_facebook_picker_title_bar_stub 0x7f03000a
 int layout com_facebook_placepickerfragment 0x7f03000b
 int layout com_facebook_placepickerfragment_list_row 0x7f03000c
 int layout com_facebook_usersettingsfragment 0x7f03000d
+int layout share_message 0x7f03000e
 int menu main 0x7f090000
 int string app_Id 0x7f050027
 int string app_name 0x7f050019

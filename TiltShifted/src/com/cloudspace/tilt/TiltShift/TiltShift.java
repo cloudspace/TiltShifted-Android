@@ -216,14 +216,17 @@ public class TiltShift {
 		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
 			// Notify user of completion
-			Toast.makeText(context,"Image Saved",Toast.LENGTH_SHORT).show();
+			if(context.isSaved == false){
+				Toast.makeText(context,"Image Saved",Toast.LENGTH_SHORT).show();
+				context.isSaved = true;
+			}
 			// If there is an internet connection enable sharing
 			if(context.isNetworkAvailable() == true){
 				context.share.setEnabled(true);
 			}
 			progressbar.setVisibility(View.INVISIBLE);
 		}
-		
+	}
 		private void storeImage(Bitmap image) {
 			
 			// Get image folder location
@@ -263,7 +266,7 @@ public class TiltShift {
 		    // To be safe, you should check that the SDCard is mounted
 		    // using Environment.getExternalStorageState() before doing this. 
 		    File mediaStorageDir = new File(Environment.getExternalStorageDirectory()
-		            + "/TiltShift"); 
+		            + "/TiltShifted"); 
 
 		    // This location works best if you want the created images to be shared
 		    // between applications and persist after your app has been uninstalled.
@@ -281,5 +284,4 @@ public class TiltShift {
 		    File mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName); 
 		    return mediaFile;
 		}
-	}
 }

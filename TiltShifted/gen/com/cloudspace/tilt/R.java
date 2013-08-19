@@ -224,7 +224,7 @@ containing a value of this type.
         public static final int share_button=0x7f020029;
     }
     public static final class id {
-        public static final int action_settings=0x7f040027;
+        public static final int action_settings=0x7f04002a;
         public static final int bottom=0x7f04000a;
         public static final int camera=0x7f04000d;
         public static final int com_facebook_login_activity_progress_bar=0x7f040014;
@@ -246,6 +246,7 @@ containing a value of this type.
         public static final int com_facebook_usersettingsfragment_login_button=0x7f040026;
         public static final int com_facebook_usersettingsfragment_logo_image=0x7f040024;
         public static final int com_facebook_usersettingsfragment_profile_name=0x7f040025;
+        public static final int edit_post=0x7f040027;
         public static final int fragment_container=0x7f040011;
         public static final int imageView1=0x7f040006;
         public static final int imageView2=0x7f040007;
@@ -255,6 +256,8 @@ containing a value of this type.
         public static final int normal=0x7f040001;
         public static final int photo=0x7f040004;
         public static final int picker_subtitle=0x7f040023;
+        public static final int post_lbl=0x7f040028;
+        public static final int post_txt=0x7f040029;
         public static final int progress=0x7f040010;
         public static final int root=0x7f040003;
         public static final int save=0x7f04000f;
@@ -280,6 +283,7 @@ containing a value of this type.
         public static final int com_facebook_placepickerfragment=0x7f03000b;
         public static final int com_facebook_placepickerfragment_list_row=0x7f03000c;
         public static final int com_facebook_usersettingsfragment=0x7f03000d;
+        public static final int share_message=0x7f03000e;
     }
     public static final class menu {
         public static final int main=0x7f090000;

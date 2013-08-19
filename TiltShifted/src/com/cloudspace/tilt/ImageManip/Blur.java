@@ -1,10 +1,7 @@
 package com.cloudspace.tilt.ImageManip;
 
 import android.graphics.Bitmap;
-// Java Author: Mario Klingemann <mario at quasimondo.com>
-// http://incubator.quasimondo.com
-// created Feburary 29, 2004
-// Android port : Yahel Bouaziz <yahel at kayenko.com>
+
 public class Blur {
 	public static Bitmap fastblur(Bitmap sentBitmap, int radius) {
 		Bitmap bitmap = sentBitmap.copy(sentBitmap.getConfig(), true);

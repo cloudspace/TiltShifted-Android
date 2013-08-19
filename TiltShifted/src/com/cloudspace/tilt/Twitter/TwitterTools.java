@@ -7,13 +7,10 @@ import com.cloudspace.tilt.MainActivity;
 import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
-import android.net.Uri;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 public class TwitterTools {
-	private static String picturePath;
 	public static MainActivity activity;
 	
 	// Pass in the main activity to manipulate the UI
@@ -21,16 +18,14 @@ public class TwitterTools {
 		activity = mainActivity;
 	}
 	
-	public void share(String picturePath, final String statusUpdate){
+	public void share(final File sharePath, final String statusUpdate){
 		// Get passed in file path
-		TwitterTools.picturePath = picturePath;
 		Thread t = new Thread() {
 	        public void run() {
 	        	try{
 	        		// Update status and inform user
 	        		Twitter twitter = TwitterUtils.twitter;
-	        		Uri uri = Uri.fromFile(new File(TwitterTools.picturePath));
-	        		File file = new File(uri.getPath());
+	        		File file = sharePath;
 	                StatusUpdate status = new StatusUpdate(statusUpdate);
 	                status.setMedia(file);
 	                twitter.updateStatus(status);

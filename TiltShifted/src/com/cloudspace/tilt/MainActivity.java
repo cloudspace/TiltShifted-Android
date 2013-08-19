@@ -1,6 +1,7 @@
 package com.cloudspace.tilt;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import com.cloudspace.tilt.Facebook.FacebookPoster;
 import com.cloudspace.tilt.Facebook.FacebookPoster.PendingAction;
@@ -43,14 +44,11 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-
+import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity implements OnClickListener,OnTouchListener {   
 	private final int GALLERY_LOAD_IMAGE = 0;
 	private final int CAMERA_LOAD_IMAGE = 1;
-	private final int FACEBOOK = 2;
-	private final int TWITTER = 3;
-	private final int EMAIL = 4;
 	
 	static Bitmap baseImage;
 	
@@ -165,13 +163,20 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	            break;
 	            
 	        case R.id.share:
-	        	// Launch sharing dialog
+	        	// Save image in background then launch sharing if network available
+	        	isSaved = true;
+	        	new SaveAsync().execute();
 	        	share();
 	        	break;
 	        	
 	        case R.id.save:
 	        	// Save tilt shifted image to gallery
-	        	new SaveAsync().execute();
+	        	if(isSaved == true){
+	        		Toast.makeText(MainActivity.this,"Image Saved",Toast.LENGTH_SHORT).show();
+	        	}
+	        	else{
+	        		new SaveAsync().execute();
+	        	}
 		}	
 	}
 	
@@ -231,14 +236,10 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
     	startActivityForResult(intent, CAMERA_LOAD_IMAGE);
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
  		super.onActivityResult(requestCode, resultCode, data);
-    	if(requestCode == GALLERY_LOAD_IMAGE || requestCode == CAMERA_LOAD_IMAGE){
-    		// Reset sharing to false in case the user loads a different image after saving 
-    		share.setEnabled(false);
-    		
+    	if(requestCode == GALLERY_LOAD_IMAGE || requestCode == CAMERA_LOAD_IMAGE){    		
     		// Get the file path of the image to be modified
 	    	if(requestCode == GALLERY_LOAD_IMAGE && resultCode == RESULT_OK && null != data){
 	    		picturePath = ImageLoader.loadFromGallery(picturePath, data, this);
@@ -246,98 +247,38 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    	else if(requestCode == CAMERA_LOAD_IMAGE && resultCode == RESULT_OK){
 	    		picturePath = ImageLoader.loadFromCamera(picturePath, imageUri, this);
 	    	}
-	    	
-	    	// Blank the bitmap we are loading the image to
-	    	if(baseImage != null){
-	    		baseImage = null;
+	    	if(resultCode == RESULT_OK){
+		    	// Blank the bitmap we are loading the image to
+		    	if(baseImage != null){
+		    		baseImage = null;
+		    	}
+		    	
+		    	// Make bitmap reusable to save on memory
+		    	BitmapFactory.Options options = new BitmapFactory.Options();
+		    	options.inBitmap = baseImage;
+		    	
+		    	// Check the size of the bitmap we are loading 
+		    	BitmapFactory.Options bounds = new BitmapFactory.Options();
+		    	bounds.inJustDecodeBounds = true;
+		    	BitmapFactory.decodeFile(picturePath,bounds);
+		    	
+		    	//If the image is very large we need to sample it to save on memory
+		    	if(bounds.outWidth > 4000 || bounds.outHeight > 4000){
+		    		options.inSampleSize = 6;
+		    		isSample = true;
+		    	}
+		    	if(bounds.outWidth > 2000 || bounds.outHeight > 2000){
+		    		options.inSampleSize = 4;
+		    		isSample = true;
+		    	}
+		    	else if(bounds.outWidth > 1000 || bounds.outHeight > 1000){
+		    		options.inSampleSize = 2;
+		    		isSample = true;
+		    	}
+		    	// Rotate the image to the proper orientation
+		    	baseImage = Orientation.orientImage(BitmapFactory.decodeFile(picturePath,options),picturePath);
+		    	new TiltAsync().execute();
 	    	}
-	    	
-	    	// Make bitmap reusable to save on memory
-	    	BitmapFactory.Options options = new BitmapFactory.Options();
-	    	options.inBitmap = baseImage;
-	    	
-	    	// Check the size of the bitmap we are loading 
-	    	BitmapFactory.Options bounds = new BitmapFactory.Options();
-	    	bounds.inJustDecodeBounds = true;
-	    	BitmapFactory.decodeFile(picturePath,bounds);
-	    	
-	    	//If the image is very large we need to sample it to save on memory
-	    	if(bounds.outWidth > 4000 || bounds.outHeight > 4000){
-	    		options.inSampleSize = 6;
-	    		isSample = true;
-	    	}
-	    	if(bounds.outWidth > 2000 || bounds.outHeight > 2000){
-	    		options.inSampleSize = 4;
-	    		isSample = true;
-	    	}
-	    	else if(bounds.outWidth > 1000 || bounds.outHeight > 1000){
-	    		options.inSampleSize = 2;
-	    		isSample = true;
-	    	}
-	    	// Rotate the image to the proper orientation
-	    	baseImage = Orientation.orientImage(BitmapFactory.decodeFile(picturePath,options),picturePath);
-	    	new TiltAsync().execute();
-    	}
-    	else if(requestCode == TWITTER && resultCode == RESULT_OK && null != data){
-    		// Get the file path of the image to be shared
-    		picturePath = ImageLoader.loadFromGallery(picturePath, data, this);
-    		showDialog(2);
-    	}
-    	else if(requestCode == FACEBOOK && resultCode == RESULT_OK && null != data){
-    		// Get the file path of the image to be shared
-    		picturePath = ImageLoader.loadFromGallery(picturePath, data, this);
-    		
-    		// Blank the bitmap we are storing the image in
-    		if(facebookPoster.shareImage != null){
-    			facebookPoster.shareImage = null;
-	    	}
-    		
-    		// Make bitmap reusable to save on memory	    	
-	    	BitmapFactory.Options options = new BitmapFactory.Options();
-	    	options.inBitmap = facebookPoster.shareImage;
-	    	//If the image is very large we need to sample it to save on memory
-	    	BitmapFactory.Options bounds = new BitmapFactory.Options();
-	    	bounds.inJustDecodeBounds = true;
-	    	BitmapFactory.decodeFile(picturePath,bounds);
-	    	
-	    	//If the image is very large we need to sample it to save on memory
-	    	if(bounds.outWidth > 4000 || bounds.outHeight > 4000){
-	    		options.inSampleSize = 6;
-	    		isSample = true;
-	    	}
-	    	if(bounds.outWidth > 2000 || bounds.outHeight > 2000){
-	    		options.inSampleSize = 4;
-	    		isSample = true;
-	    	}
-	    	else if(bounds.outWidth > 1000 || bounds.outHeight > 1000){
-	    		options.inSampleSize = 2;
-	    		isSample = true;
-	    	}
-	    	
-	    	// Store the bitmap to be shared
-	    	facebookPoster.shareImage = BitmapFactory.decodeFile(picturePath,options);
-	    	
-	    	// Upload the image to Facebook
-	    	progressbar.setVisibility(View.VISIBLE);
-	    	showDialog(1);
-        }
-    	else if(requestCode == EMAIL && resultCode == RESULT_OK && null != data){
-    		
-    		// Create new Intent to open the devices email programs
-    		Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-    		
-    		// Set email type to accept images
-    	    emailIntent.setType("image/png");
-    	    
-    	    // Get the file path of the image to be shared
-    	    picturePath = ImageLoader.loadFromGallery(picturePath, data, this);
-    	    Uri uri = Uri.fromFile(new File(picturePath));
-    	    
-    	    // Insert the image as an attachment
-    	    emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
-
-    	    // Launch the email program
-    	    startActivity(emailIntent);
     	}
     	else{
     		// Update Facebook helper
@@ -419,14 +360,35 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	
 	// Launch the share dialog
 	public void share(){
-		new ShareAsync().execute();
+		if(isNetworkAvailable()){
+			new ShareAsync().execute();
+		}
+		else{
+			Toast.makeText(MainActivity.this,"No Network Available",Toast.LENGTH_SHORT).show();
+		}
 	}
 		 
 	// Launch email sharing
 	public void sendEmail(){
-		Intent i = new Intent(
-			Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-			startActivityForResult(i, EMAIL);
+		// Create new Intent to open the devices email programs
+		Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+		
+		// Set email type to accept images
+	    emailIntent.setType("image/png");
+	    
+	    // Get the file path of the image to be shared
+	    Uri uri = Uri.fromFile(tilt.sharePath);
+	    
+	    // Insert the image as an attachment
+	    emailIntent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
+
+	    // Launch the email program
+	    startActivity(emailIntent);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void sendTweet(){
+		showDialog(2);
 	}
 	
 	@Override
@@ -449,6 +411,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 			if(blurStrengthBottom != null){
 				outState.putInt("BottomStrength",blurStrengthBottom);
 			}
+			if(tilt.sharePath != null){
+				outState.putString("SharePath", tilt.sharePath.getPath());
+			}
 		    outState.putBoolean("Sample",isSample);
 		    outState.putBoolean("Saved",isSaved);
 		    outState.putParcelable("Base",baseImage);	    
@@ -460,16 +425,15 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    super.onRestoreInstanceState(savedState);
 	    
 	    // If there is saved data reload it
-	    if(savedState != null){
+	    if(savedState != null && tilt != null){
 	    	// Reload orginal image
 	    	BitmapFactory.Options options = new BitmapFactory.Options();
 	    	options.inBitmap = baseImage;
 	    	baseImage = savedState.getParcelable("Base");
 	    	isSaved = savedState.getBoolean("Saved");
 	    	save.setEnabled(true);
-	    	if(isSaved == true && isNetworkAvailable() == true){
-	    		share.setEnabled(true);
-	    	}
+	    	share.setEnabled(true);
+
 	    	// Restart and apply base adjustments
 	    	tilt = new TiltShift(MainActivity.this);
 	    	facebookPoster = new FacebookPoster(MainActivity.this);
@@ -479,7 +443,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    	prepareViews();
 	    	imageView2.setImageBitmap(tilt.topShift);
 	    	imageView3.setImageBitmap(tilt.bottomShift);
-	    	
+	    	if(savedState.getString("SharePath") != null){
+	    		tilt.sharePath = new File(savedState.getString("SharePath"));
+	    	}
 	    	// Apply stored adjustments to top blur
 	    	if((Integer) savedState.getInt("Top") != null){
 	    		adjustTopBlur((Integer) savedState.getInt("TopStrength"),Math.round((Integer) savedState.getInt("Top")*(height/100)));
@@ -554,6 +520,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 			super.onPostExecute(result);
 			// Enable the save button
 			save.setEnabled(true);
+			share.setEnabled(true);
 			new PrepAsync().execute();
 		}
 		
@@ -603,7 +570,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		protected Void doInBackground(Void... params) {
 			// Save the image
 			tilt.save(progressbar);
-			isSaved = true;
 			return null;
 		}
 		
@@ -702,13 +668,12 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 					else if(which==1){
 						// If the user is logged in to Twitter begin photo sharing
 						if (twitterAuthed == true) {
-							Intent i = new Intent(
-							        Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-							        startActivityForResult(i, TWITTER);
+							sendTweet();
 							dialog.dismiss();
 						}
 						// If the user is not logged in to Twitter prompt them too
 						else{
+							sendTweet();
 							Intent i = new Intent(getApplicationContext(), TwitterPoster.class);
 							startActivity(i);
 							dialog.dismiss();
@@ -746,7 +711,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		@Override
 		protected Void doInBackground(Void... params) {
 			// Pass in the file path of the image to be shared
-			twitterTools.share(picturePath,statusUpdate);
+			twitterTools.share(tilt.sharePath,statusUpdate);
 			return null;
 		}
 		
@@ -757,12 +722,11 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void postPhoto() {
 		// If the user is logged in to Facebook start sharing
         if (FacebookPoster.hasPublishPermission()) {
-        	Intent i = new Intent(
-			        Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-			        startActivityForResult(i, FACEBOOK);
+        	showDialog(1);
         } else {
         	FacebookPoster.pendingAction = PendingAction.POST_PHOTO;
         }
@@ -782,8 +746,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		try{
 			switch (id) { 
 				case 1:
-					   
-				       
 				       /** Create Dialog */
 				       return new AlertDialog.Builder(MainActivity.this)
 			               .setTitle("Status")
@@ -792,6 +754,55 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 			            	   public void onClick(DialogInterface dialog, int whichButton) {
 			            		   // Upload the image to Facebook
 			           	    		progressbar.setVisibility(View.VISIBLE);
+			           	    		try {
+										facebookPoster.sharePhoto(edit_message.getText().toString(),tilt.sharePath);
+									} catch (FileNotFoundException e) {
+										e.printStackTrace();
+									}
+			            	   }
+			               })
+			               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+			            	   public void onClick(DialogInterface dialog, int whichButton) {
+			            		   progressbar.setVisibility(View.INVISIBLE);
+			            	   }
+			               })
+			               .create(); 
+			case 2:
+			       /** Create Dialog */
+			       return new AlertDialog.Builder(MainActivity.this)
+		               .setTitle("Status")
+		               .setView(textEntryView)
+		               .setPositiveButton("SHARE", new DialogInterface.OnClickListener() {
+		            	   public void onClick(DialogInterface dialog, int whichButton) {
+		            		   // Load the image into a Twitter Status and update the users status
+		            		   statusUpdate = edit_message.getText().toString();
+		            		   new TwitterShareAsync().execute();
+		            	   }
+		               })
+		               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+		            	   public void onClick(DialogInterface dialog, int whichButton) {
+		            	   }
+		               })
+		               .create();
+		}
+		}
+		catch (Exception ex) {
+			finish();
+		}
+		return null;
+	}
+	
+	// Check if there is an internet connection
+	public boolean isNetworkAvailable() {
+	    ConnectivityManager connectivityManager 
+	          = (ConnectivityManager) getSystemService(MainActivity.CONNECTIVITY_SERVICE);
+	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+}  
+
+
+IBLE);
 			           	    		facebookPoster.sharePhoto(edit_message.getText().toString());
 			            	   }
 			               })
