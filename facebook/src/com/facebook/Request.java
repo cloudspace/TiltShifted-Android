@@ -317,11 +317,12 @@ public class Request {
      * @param callback a callback that will be called when the request is completed to handle success or error conditions
      * @return a Request that is ready to execute
      */
-    public static Request newUploadPhotoRequest(Session session, File file,
+    public static Request newUploadPhotoRequest(Session session, File file, String string,
             Callback callback) throws FileNotFoundException {
         ParcelFileDescriptor descriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY);
         Bundle parameters = new Bundle(1);
         parameters.putParcelable(PICTURE_PARAM, descriptor);
+        parameters.putString("message", string);
 
         return new Request(session, MY_PHOTOS, parameters, HttpMethod.POST, callback);
     }
@@ -758,9 +759,9 @@ public class Request {
      * @param callback a callback that will be called when the request is completed to handle success or error conditions
      * @return a RequestAsyncTask that is executing the request
      */
-    public static RequestAsyncTask executeUploadPhotoRequestAsync(Session session, File file,
+    public static RequestAsyncTask executeUploadPhotoRequestAsync(Session session, File file, String string,
             Callback callback) throws FileNotFoundException {
-        return newUploadPhotoRequest(session, file, callback).executeAsync();
+        return newUploadPhotoRequest(session, file, string, callback).executeAsync();
     }
 
     /**

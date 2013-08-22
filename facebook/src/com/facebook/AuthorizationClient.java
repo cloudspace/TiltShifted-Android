@@ -504,7 +504,7 @@ class AuthorizationClient implements Serializable {
         private void saveCookieToken(String token) {
         	Log.i("LOGIN","LOGGEDIN");
             Context context = getStartActivityDelegate().getActivityContext();
-            Toast.makeText(context,"You are now logged in to Facebook.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context,"You are now logged in to Facebook and may post your photo!",Toast.LENGTH_SHORT).show();
             SharedPreferences sharedPreferences = context.getSharedPreferences(
                     WEB_VIEW_AUTH_HANDLER_STORE,
                     Context.MODE_PRIVATE);
