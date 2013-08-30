@@ -8,6 +8,9 @@ import com.cloudspace.tilt.Facebook.FacebookPoster.PendingAction;
 import com.cloudspace.tilt.ImageManip.ImageLoader;
 import com.cloudspace.tilt.ImageManip.Orientation;
 import com.cloudspace.tilt.TiltShift.TiltShift;
+import com.cloudspace.tilt.Tools.SaveAsync;
+import com.cloudspace.tilt.Tools.TiltAsync;
+import com.cloudspace.tilt.Tools.TwitterShareAsync;
 import com.cloudspace.tilt.Twitter.TwitterPoster;
 import com.cloudspace.tilt.Twitter.TwitterTools;
 import com.cloudspace.tilt.Twitter.TwitterUtils;
@@ -50,18 +53,18 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	private final int GALLERY_LOAD_IMAGE = 0;
 	private final int CAMERA_LOAD_IMAGE = 1;
 	
-	static Bitmap baseImage;
+	public Bitmap baseImage;
 	
 	private static View top;
 	private static View bottom;
 	private static ImageView imageView1;
-	private static ImageView imageView2;
-	private static ImageView imageView3;
+	public ImageView imageView2;
+	public ImageView imageView3;
 	public ImageButton share;
-	private static ImageButton save;
+	public ImageButton save;
 	public ProgressBar progressbar;
 	
-	private static Integer width;
+	public Integer width;
 	private static Integer height;
 	private static Integer blurTop;
 	private static Integer blurBottom;
@@ -73,9 +76,9 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	public Boolean isSaved = false;
 	public static String picturePath = null;
 	private Uri imageUri;
-	static TiltShift tilt;
+	public TiltShift tilt;
 	static FacebookPoster facebookPoster;
-	static TwitterTools twitterTools;
+	public TwitterTools twitterTools;
     private SharedPreferences prefs;
     public Boolean twitterAuthed = false;
     public String statusUpdate;
@@ -165,7 +168,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	        case R.id.share:
 	        	// Save image in background then launch sharing if network available
 	        	isSaved = true;
-	        	new SaveAsync().execute();
+	        	SaveAsync shareSave = new SaveAsync(this);
+	        	shareSave.execute();
 	        	share();
 	        	break;
 	        	
@@ -175,7 +179,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	        		Toast.makeText(MainActivity.this,"Image Saved",Toast.LENGTH_SHORT).show();
 	        	}
 	        	else{
-	        		new SaveAsync().execute();
+	        		SaveAsync save = new SaveAsync(this);
+		        	save.execute();
 	        	}
 		}	
 	}
@@ -277,7 +282,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		    	}
 		    	// Rotate the image to the proper orientation
 		    	baseImage = Orientation.orientImage(BitmapFactory.decodeFile(picturePath,options),picturePath);
-		    	new TiltAsync().execute();
+		    	TiltAsync tiltAsync = new TiltAsync(this);
+		    	tiltAsync.execute();
 	    	}
     	}
     	else{
@@ -287,7 +293,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
  	}
 	
 	// Apply the user selected image and set margins for the touch areas
-	private void prepareViews(){
+	public void prepareViews(){
 		height = tilt.height;
 	    width = tilt.width;
 	    imageView1.setImageBitmap(tilt.contrastImage);
@@ -491,100 +497,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		facebookPoster.uiHelper.onDestroy();
 	}
 	
-	
-	
-	// Asynchronous Tasks
-	private class TiltAsync extends AsyncTask<Void, Integer, Void>{
-
-		@Override
-    	protected void onPreExecute(){
-    		super.onPreExecute();
-    		progressbar.setVisibility(View.VISIBLE);
-		}
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			// Initialize TiltShift and pass in the user selected image
-			tilt = new TiltShift(MainActivity.this);
-			tilt.load(baseImage);
-			return null;
-		}
-		
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			// Enable the save button
-			save.setEnabled(true);
-			share.setEnabled(true);
-			new PrepAsync().execute();
-		}
-		
-	}
-	
-	private class PrepAsync extends AsyncTask<Void, Integer, Void>{
-
-		@Override
-    	protected void onPreExecute(){
-    		super.onPreExecute();
-    		prepareViews();
-		}
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			return null;
-		}
-		
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			// Pass in base values and display the blurred images
-			prepareViews();
-			tilt.shiftTop(width,100);
-			tilt.shiftBottom(width,50);
-			imageView2.setImageBitmap(tilt.topShift);
-			imageView3.setImageBitmap(tilt.bottomShift);
-			progressbar.setVisibility(View.INVISIBLE);
-		}
-		
-	}
-	
-	private class SaveAsync extends AsyncTask<Void, Integer, Void>{
-
-		@Override
-    	protected void onPreExecute(){
-    		super.onPreExecute();
-    		progressbar.setVisibility(View.VISIBLE);
-		}
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			// Save the image
-			tilt.save(progressbar);
-			return null;
-		}
-		
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			super.onProgressUpdate(values);
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-		}
-		
-	}
-	
 	private class ShareAsync extends AsyncTask<Void, Integer, Void>{
 
 		@Override
@@ -700,28 +612,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		 
 	 }
 	
-	private class TwitterShareAsync extends AsyncTask<Void, Integer, Void>{
-
-		@Override
-    	protected void onPreExecute(){
-    		super.onPreExecute();
-    		progressbar.setVisibility(View.VISIBLE);
-		}
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			// Pass in the file path of the image to be shared
-			twitterTools.share(tilt.sharePath,statusUpdate);
-			return null;
-		}
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-		}
-		
-	}
-	
 	@SuppressWarnings("deprecation")
 	public void postPhoto() {
 		// If the user is logged in to Facebook start sharing
@@ -776,7 +666,8 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 		            	   public void onClick(DialogInterface dialog, int whichButton) {
 		            		   // Load the image into a Twitter Status and update the users status
 		            		   statusUpdate = edit_message.getText().toString();
-		            		   new TwitterShareAsync().execute();
+		            		   TwitterShareAsync twitterAsync = new TwitterShareAsync(MainActivity.this);
+		            		   twitterAsync.execute();
 		            	   }
 		               })
 		               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
@@ -800,50 +691,3 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
 	}
 }  
-
-
-IBLE);
-			           	    		facebookPoster.sharePhoto(edit_message.getText().toString());
-			            	   }
-			               })
-			               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-			            	   public void onClick(DialogInterface dialog, int whichButton) {
-			            		   progressbar.setVisibility(View.INVISIBLE);
-			            	   }
-			               })
-			               .create(); 
-			case 2:
-			       /** Create Dialog */
-			       return new AlertDialog.Builder(MainActivity.this)
-		               .setTitle("Status")
-		               .setView(textEntryView)
-		               .setPositiveButton("SHARE", new DialogInterface.OnClickListener() {
-		            	   public void onClick(DialogInterface dialog, int whichButton) {
-		            		   // Load the image into a Twitter Status and update the users status
-		            		   statusUpdate = edit_message.getText().toString();
-		            		   new TwitterShareAsync().execute();
-		            	   }
-		               })
-		               .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-		            	   public void onClick(DialogInterface dialog, int whichButton) {
-		            	   }
-		               })
-		               .create();
-		}
-		}
-		catch (Exception ex) {
-			finish();
-		}
-		return null;
-	}
-	
-	// Check if there is an internet connection
-	public boolean isNetworkAvailable() {
-	    ConnectivityManager connectivityManager 
-	          = (ConnectivityManager) getSystemService(MainActivity.CONNECTIVITY_SERVICE);
-	    NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-	    return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-	}
-}  
-
-
