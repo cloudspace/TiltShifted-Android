@@ -431,6 +431,7 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    super.onRestoreInstanceState(savedState);
 	    
 	    // If there is saved data reload it
+	    tilt = new TiltShift(MainActivity.this);
 	    if(savedState != null && tilt != null){
 	    	// Reload orginal image
 	    	BitmapFactory.Options options = new BitmapFactory.Options();
@@ -441,7 +442,6 @@ public class MainActivity extends FragmentActivity implements OnClickListener,On
 	    	share.setEnabled(true);
 
 	    	// Restart and apply base adjustments
-	    	tilt = new TiltShift(MainActivity.this);
 	    	facebookPoster = new FacebookPoster(MainActivity.this);
 	    	facebookPoster.uiHelper = new UiLifecycleHelper(MainActivity.this, facebookPoster.callback);
 			twitterTools = new TwitterTools(MainActivity.this);
